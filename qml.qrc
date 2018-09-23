@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>glcode.js</file>
+        <file>three.js</file>
+        <file>icons/outline-add-24px.svg</file>
+        <file>icons/outline-fast_forward-24px.svg</file>
+        <file>icons/outline-fast_rewind-24px.svg</file>
+        <file>icons/outline-pause_circle_outline-24px.svg</file>
+        <file>icons/outline-play_arrow-24px.svg</file>
+        <file>icons/outline-play_circle_filled_white-24px.svg</file>
+        <file>icons/outline-save-24px.svg</file>
+        <file>icons/outline-settings-24px.svg</file>
+        <file>icons/outline-skip_next-24px.svg</file>
+        <file>icons/outline-skip_previous-24px.svg</file>
+        <file>viscode.js</file>
+        <file>arrowHelper.js</file>
+        <file>AddFramesDialog.qml</file>
+        <file>NewAnimationDialog.qml</file>
+    </qresource>
+</RCC>
