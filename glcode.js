@@ -1,9 +1,11 @@
 Qt.include("three.js")
 Qt.include("arrowHelper.js")
+Qt.include("rainbowvis.js")
 
 var camera, scene, renderer;
 
 var plane;
+var planeColors;
 var arrows = [];
 
 var arrowHeadLength = 0.3;
@@ -13,6 +15,8 @@ var colorOne = new THREE.Color( 0x0000ff );
 var colorTwo = new THREE.Color( 0xff0000 );
 var colorFrom = -1;
 var colorTo = 1;
+
+var rainbow = new Rainbow();
 
 var colorPlaneGeometry;
 
@@ -34,36 +38,18 @@ function initializeGL(canvas) {
                                                    side: THREE.DoubleSide
                                                });
 
-    /*colorPlaneGeometry = new THREE.PlaneBufferGeometry(2, 2, 2, 2);
-
-    var lutColors = new Float32Array( [
-                                     1,0,0,
-                                     0,0,0,
-                                     0,0,1,
-                                         0,0,0,
-                                         0,1,0,
-                                         0,0,0,
-                                         0,0,1,
-                                         0,0,0,
-                                         1,0,0
-                                     ]);
-
-    for ( var i = 0; i < simulationData[0].length; i ++ ) {
-            lutColors[ 3 * i ] = i/9.;
-            lutColors[ 3 * i + 1 ] = 0;
-            lutColors[ 3 * i + 2 ] = (9-i/9.);
-    }
-
-    colorPlaneGeometry.addAttribute( 'color', new THREE.BufferAttribute( lutColors, 3 ) );*/
-
     plane = new THREE.Mesh(undefined, material);
+    plane.rotateY(Math.PI);
     center = plane.position;
     scene.add(plane);
 
 
     renderer = new THREE.Canvas3DRenderer(
-                { canvas: canvas, antialias: true, devicePixelRatio: canvas.devicePixelRatio     });
+                { canvas: canvas, antialias: false, devicePixelRatio: canvas.devicePixelRatio     });
     renderer.setSize(canvas.width, canvas.height);
+
+    rainbow.setNumberRange(colorFrom, colorTo);
+    rainbow.setSpectrum("blue", "white", "red");
 }
 
 function resizeGL(canvas) {
@@ -91,13 +77,23 @@ function addArrow(){
 }
 
 function delArrow(){
+    scene.remove(arrows.pop());
+}
 
+function onSwitchArrows(){
+    for (var i = 0; i < arrows.length; ++i ){
+        arrows[i].visible = chbArrows.checked;
+    }
+    onRender();
 }
 
 function updateSurface(){
+    //plane.geometry = new THREE.PlaneBufferGeometry(window.nx-1, window.ny-1, window.nx-1, window.ny-1);
+    plane.geometry.dispose();
     plane.geometry = new THREE.PlaneBufferGeometry(window.nx-1, window.ny-1, window.nx-1, window.ny-1);
-    plane.geometry.addAttribute( 'color', new THREE.BufferAttribute( new Float32Array( window.nx * window.ny * 3), 3 ) );
-    plane.rotateY(Math.PI);
+    planeColors = new THREE.BufferAttribute( new Float32Array( window.nx * window.ny * 3), 3 );
+    planeColors.setDynamic(true);
+    plane.geometry.addAttribute( 'color', planeColors);
 }
 
 function updateArrows(data){
@@ -105,10 +101,15 @@ function updateArrows(data){
     var centerY = (window.ny-1)/2.;
     if (data.length !== arrows.length){
         updateSurface();
+        var steps, n;
         if (data.length>arrows.length){
-            var steps = data.length-arrows.length;
-            for (var n=0; n < steps; ++n)
+            steps = data.length - arrows.length;
+            for (n=0; n < steps; ++n)
                 addArrow();
+        } else {
+            steps = arrows.length - data.length;
+            for (n=0; n < steps; ++n)
+                delArrow();
         }
     }
     var dir = new THREE.Vector3(  );
@@ -116,29 +117,29 @@ function updateArrows(data){
     var len = 0;
     var colorFactor;
     for (var i=0; i< data.length; ++i){
-        pos.set(data[i][0] - centerX, data[i][1] - centerY, data[i][2]);
-        dir.set(data[i][3], data[i][4], data[i][5]);
-        len = dir.length();
-        dir.normalize();
-
-        arrows[i].position.copy( pos );
-        arrows[i].setDirection( dir );
-        arrows[i].setLength( len, len * arrowHeadLength, len * arrowHeadWidth );
 
         colorFactor = (data[i][5] - colorFrom) / (colorTo - colorFrom);
-        var newColor = colorBetween(colorOne,colorTwo,colorFactor);
-        arrows[i].setColor(newColor);
-        newColor.toArray(plane.geometry.attributes.color.array,((data.length - i - 1)*3));
-    }
-    plane.geometry.colorsNeedUpdate = true;
-}
+        var newColor = new THREE.Color( parseInt( rainbow.colourAt(data[i][5]) ,16) );
 
-function colorBetween(color1, color2, point){
-    var result = new THREE.Color( );
-    result.r = (color1.r + point * (color2.r - color1.r));
-    result.g = (color1.g + point * (color2.g - color1.g));
-    result.b = (color1.b + point * (color2.b - color1.b));
-    return result;
+        if (chbArrows.checked){
+            pos.set(data[i][0] - centerX, data[i][1] - centerY, data[i][2]);
+            dir.set(data[i][3], data[i][4], data[i][5]);
+            len = dir.length();
+            dir.normalize();
+
+            if (!arrows[i].position.equals(pos))
+                arrows[i].position.copy( pos );
+            if (arrows[i].len !== len)
+                arrows[i].setLength( len, len * arrowHeadLength, len * arrowHeadWidth );
+
+            arrows[i].setDirection( dir );
+            arrows[i].setColor(newColor);
+        }
+
+        newColor.toArray(planeColors.array,((data.length - i - 1)*3));
+    }
+    planeColors.needsUpdate = true;
+    onRender();
 }
 
 function onWheelChanged(wheel){
@@ -201,13 +202,27 @@ function updateCameraPos(ct, cp, cr) {
     camera.lookAt( center );
 
     camera.updateProjectionMatrix();
+    onRender();
 }
 
 function onAnimate(){
-    timeSlider.value += 1;
+    var incVal = 1;
+    if (timeSlider.to > 100)
+        incVal = 5
+    else if (timeSlider.to > 1000)
+        incVal = 10
+    else if (timeSlider.to > 5000)
+        incVal = 30
+    else if (timeSlider.to > 10000)
+        incVal = 100;
+    timeSlider.value += incVal;
     if (timeSlider.value === timeSlider.to){
         animationTimer.stop();
     }
+}
+
+function onRender(){
+    canvas3d.requestRender();
 }
 
 function dbg(){

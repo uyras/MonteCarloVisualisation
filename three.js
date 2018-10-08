@@ -35609,7 +35609,7 @@ THREE.ArrowHelper.prototype.setLength = function ( length, headLength, headWidth
     this.cone.scale.set( headWidth, headLength, headWidth );
     this.cone.position.y = length;
     this.cone.updateMatrix();
-
+    this.len = length;
 };
 
 THREE.ArrowHelper.prototype.setColor = function ( color ) {

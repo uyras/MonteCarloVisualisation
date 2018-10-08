@@ -42,7 +42,7 @@ function ArrowHelper( dir, origin, length, color, headLength, headWidth ) {
         lineGeometry = new BufferGeometry();
         lineGeometry.addAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 1, 0 ], 3 ) );
 
-        coneGeometry = new CylinderBufferGeometry( 0, 0.5, 1, 5, 1 );
+        coneGeometry = new CylinderBufferGeometry( 0, 0.5, 1, 3, 1 );
         coneGeometry.translate( 0, - 0.5, 0 );
 
     }
@@ -107,7 +107,7 @@ ArrowHelper.prototype.setLength = function ( length, headLength, headWidth ) {
     this.cone.scale.set( headWidth, headLength, headWidth );
     this.cone.position.y = length;
     this.cone.updateMatrix();
-
+    this.len = length;
 };
 
 ArrowHelper.prototype.setColor = function ( color ) {

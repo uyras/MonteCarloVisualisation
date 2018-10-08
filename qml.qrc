@@ -17,5 +17,7 @@
         <file>arrowHelper.js</file>
         <file>AddFramesDialog.qml</file>
         <file>NewAnimationDialog.qml</file>
+        <file>CenterDialog.qml</file>
+        <file>rainbowvis.js</file>
     </qresource>
 </RCC>
