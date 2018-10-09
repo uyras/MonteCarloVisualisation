@@ -7,6 +7,7 @@ var camera, scene, renderer;
 var plane;
 var planeColors;
 var arrows = [];
+var lines;
 
 var arrowHeadLength = 0.3;
 var arrowHeadWidth = 0.25;
@@ -29,7 +30,8 @@ function initializeGL(canvas) {
     camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
     camera.position.z = cameraRadius;
 
-    var material = new THREE.MeshBasicMaterial({    color: 0xffffff,
+    // add color plane to the scene
+    var planeMaterial = new THREE.MeshBasicMaterial({    color: 0xffffff,
                                                    shading: THREE.SmoothShading,
                                                    wireframe: false,
                                                    opacity:0.7,
@@ -38,10 +40,22 @@ function initializeGL(canvas) {
                                                    side: THREE.DoubleSide
                                                });
 
-    plane = new THREE.Mesh(undefined, material);
+    plane = new THREE.Mesh(undefined, planeMaterial);
     plane.rotateY(Math.PI);
     center = plane.position;
     scene.add(plane);
+
+
+    // add lines to the scene
+    var linesMaterial = new THREE.LineBasicMaterial({    color: 0xffffff,
+                                                   shading: THREE.SmoothShading,
+                                                   wireframe: false,
+                                                   vertexColors: THREE.VertexColors,
+                                                   side: THREE.DoubleSide,
+                                                    linewidth: 5
+                                               });
+    lines = new THREE.LineSegments( undefined, linesMaterial);
+    scene.add(lines);
 
 
     renderer = new THREE.Canvas3DRenderer(
@@ -82,18 +96,29 @@ function delArrow(){
 
 function onSwitchArrows(){
     for (var i = 0; i < arrows.length; ++i ){
-        arrows[i].visible = chbArrows.checked;
+        arrows[i].visible = chbArrows.checked && !window.simplifiedArrows;
     }
-    onRender();
+    lines.visible = chbArrows.checked && window.simplifiedArrows;
+    timeSlider.onValueChanged();
 }
 
 function updateSurface(){
-    //plane.geometry = new THREE.PlaneBufferGeometry(window.nx-1, window.ny-1, window.nx-1, window.ny-1);
+    //update plane
     plane.geometry.dispose();
     plane.geometry = new THREE.PlaneBufferGeometry(window.nx-1, window.ny-1, window.nx-1, window.ny-1);
     planeColors = new THREE.BufferAttribute( new Float32Array( window.nx * window.ny * 3), 3 );
     planeColors.setDynamic(true);
     plane.geometry.addAttribute( 'color', planeColors);
+
+    //update lines
+    lines.geometry.dispose();
+    lines.geometry = new THREE.BufferGeometry();
+    var linePositions   = new THREE.BufferAttribute( new Float32Array( window.nx * window.ny * 6), 3 );
+    var lineColors      = new THREE.BufferAttribute( new Float32Array( window.nx * window.ny * 6), 3 );
+    linePositions.setDynamic(true);
+    lineColors.setDynamic(true);
+    lines.geometry.addAttribute( 'position', linePositions );
+    lines.geometry.addAttribute( 'color', lineColors);
 }
 
 function updateArrows(data){
@@ -124,16 +149,27 @@ function updateArrows(data){
         if (chbArrows.checked){
             pos.set(data[i][0] - centerX, data[i][1] - centerY, data[i][2]);
             dir.set(data[i][3], data[i][4], data[i][5]);
-            len = dir.length();
-            dir.normalize();
 
-            if (!arrows[i].position.equals(pos))
-                arrows[i].position.copy( pos );
-            if (arrows[i].len !== len)
-                arrows[i].setLength( len, len * arrowHeadLength, len * arrowHeadWidth );
+            if (window.simplifiedArrows){
+                dir.add(pos);
+                pos.toArray( lines.geometry.attributes.position.array, i * 6 );
+                dir.toArray( lines.geometry.attributes.position.array, i * 6 + 3 );
+                newColor.toArray( lines.geometry.attributes.color.array, i * 6 );
+                newColor.toArray( lines.geometry.attributes.color.array, i * 6 + 3 );
+                lines.geometry.attributes.position.needsUpdate = true;
+                lines.geometry.attributes.color.needsUpdate = true;
+            } else {
+                len = dir.length();
+                dir.normalize();
 
-            arrows[i].setDirection( dir );
-            arrows[i].setColor(newColor);
+                if (!arrows[i].position.equals(pos))
+                    arrows[i].position.copy( pos );
+                if (arrows[i].len !== len)
+                    arrows[i].setLength( len, len * arrowHeadLength, len * arrowHeadWidth );
+
+                arrows[i].setDirection( dir );
+                arrows[i].setColor(newColor);
+            }
         }
 
         newColor.toArray(planeColors.array,((data.length - i - 1)*3));

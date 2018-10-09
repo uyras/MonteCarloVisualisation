@@ -17,6 +17,8 @@ Window {
 
     property int nx: 0;
     property int ny: 0;
+    property alias simplifiedArrows: chbSimple.checked
+    onSimplifiedArrowsChanged: GLCode.onSwitchArrows();
 
     Settings {
         property alias x: window.x
@@ -95,6 +97,11 @@ Window {
                 onClicked: GLCode.onSwitchArrows();
                 checked: true;
             }
+            CheckBox {
+                id: chbSimple
+                text: "simple"
+            }
+
             CheckBox {
                 text: "surface"
             }
