@@ -1,5 +1,3 @@
-Qt.include("three.js")
-Qt.include("arrowHelper.js")
 Qt.include("rainbowvis.js")
 
 var camera, scene, renderer;

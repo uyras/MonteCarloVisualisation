@@ -27,6 +27,9 @@ CenterDialog {
 
         SpinBox {
             id: fieldFramesCount
+            editable: true;
+            from: 1
+            to: 10000;
         }
 
         Text { text: "T"; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }

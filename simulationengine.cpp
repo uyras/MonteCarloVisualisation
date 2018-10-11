@@ -2,25 +2,40 @@
 
 simulationEngine::simulationEngine(QObject *parent) : QObject(parent)
 {
+    connect(this, SIGNAL(run(unsigned long)), &worker, SLOT(mc(unsigned long)));
+    connect(&worker, SIGNAL(allDone()), this, SLOT(finishStep()));
+    connect(&worker, SIGNAL(stepDone(unsigned)), this, SIGNAL(stepDone(unsigned)));
 
+
+    worker.moveToThread(&workerThread);
+}
+
+simulationEngine::~simulationEngine()
+{
+    workerThread.quit();
+    workerThread.wait();
 }
 
 void simulationEngine::init(unsigned nx, unsigned ny, unsigned initialState, unsigned seed)
 {
-    generator.seed(seed);
-    this->nx = nx;
-    this->ny = ny;
-    this->N = nx*ny;
-    drop();
+    cleanHistory();
+    setXY(nx,ny);
+    m_step = 0;
+    stepsChanged();
+    worker.generator.seed(seed);
+    worker.nx = nx;
+    worker.ny = ny;
+    worker.N = nx*ny;
+    worker.drop();
     switch (initialState) {
-        case 0: dropRandom(); break;
-        case 1: dropAllUp(); break;
-        case 2: dropChessboard(); break;
-        case 3: dropLineUpDown(); break;
+        case 0: worker.dropRandom(); break;
+        case 1: worker.dropAllUp(); break;
+        case 2: worker.dropChessboard(); break;
+        case 3: worker.dropLineUpDown(); break;
     }
 }
 
-QVariantList simulationEngine::makeStep(
+void simulationEngine::setup(
         double H,
         double hx,
         double hy,
@@ -32,198 +47,76 @@ QVariantList simulationEngine::makeStep(
         double az,
         double r)
 {
-    this->Hc = H;
-    this->Hcd.x = hx;
-    this->Hcd.y = hy;
-    this->Hcd.z = hz;
-    this->Ha = a;
-    this->Had.x = ax;
-    this->Had.y = ay;
-    this->Had.z = az;
-    this->T = T;
-    this->r = r;
-    this->eCalc();
-    this->mc(1);
-    QVariantList res;
-    for (int i=0; i<N; ++i){
-        QVariantList resDat;
-        resDat.reserve(6);
-        resDat << parts[i].pos.x;
-        resDat << parts[i].pos.y;
-        resDat << parts[i].pos.z;
-        resDat << parts[i].m.x;
-        resDat << parts[i].m.y;
-        resDat << parts[i].m.z;
-        res << QVariant(resDat);
+    worker.Hc = H;
+    worker.Hcd.x = hx;
+    worker.Hcd.y = hy;
+    worker.Hcd.z = hz;
+    worker.Ha = a;
+    worker.Had.x = ax;
+    worker.Had.y = ay;
+    worker.Had.z = az;
+    worker.T = T;
+    worker.r = r;
+    worker.eCalc();
+    workerThread.start();
+}
+
+const QString simulationEngine::getPoses() const
+{
+    if (worker.m_poses.length() < m_step+1)
+        return "";
+
+    QString str = "[";
+    bool first = true;
+    for (auto pos : worker.m_poses[m_step]){
+        if (first)
+            first = false;
+        else str.append(',');
+        str.append(QString::number(pos));
     }
-    return res;
+    str.append(']');
+
+    return str;
 }
 
-double simulationEngine::hamiltonianDipolar(const simulationEngine::Vect &radius, const simulationEngine::Vect &mi, const simulationEngine::Vect &mj)
+const QString simulationEngine::getMags() const
 {
-    double r2, r, r5,E;
-    r2 = radius.len2();
-    r = sqrt(r2); //трудное место, заменить бы
-    r5 = r2 * r2 * r; //радиус в пятой
-    E = //энергия считается векторным методом, так как она не нужна для каждой оси
-            (( (mi.x * mj.x + mi.y * mj.y + mi.z * mj.z) * r2)
-             -
-             (3 * (mj.x * radius.x + mj.y * radius.y + mj.z * radius.z) * (mi.x * radius.x + mi.y * radius.y + mi.z * radius.z)  )) / r5;
-    return E;
-}
+    if (worker.m_mags.length() < m_step+1)
+        return "";
 
-void simulationEngine::drop()
-{
-    parts.resize(int(N));
-    int num=0;
-    for (unsigned i=0;i<nx;++i){
-        for (unsigned j=0;j<ny;++j){
-            // random direction
-            parts[num].m.x = 0;
-            parts[num].m.y = 0;
-            parts[num].m.z = 1;
-
-            parts[num].pos.x=j;
-            parts[num].pos.y=i;
-
-            if (i>0){
-                parts[num].neigh[0]=int(nnum(i-1,j));
-            } else{
-                parts[num].neigh[0]=-1;
-            }
-            if (i<nx-1){
-                parts[num].neigh[1]=int(nnum(i+1,j));
-            } else{
-                parts[num].neigh[1]=-1;
-            }
-            if (j>0){
-                parts[num].neigh[2]=int(nnum(i,j-1));
-            } else{
-                parts[num].neigh[2]=-1;
-            }
-            if (j<ny-1){
-                parts[num].neigh[3]=int(nnum(i,j+1));
-            } else{
-                parts[num].neigh[3]=-1;
-            }
-            ++num;
-        }
+    QString str = "[";
+    bool first = true;
+    for (auto mag : worker.m_mags[m_step]){
+        if (first)
+            first = false;
+        else str.append(',');
+        str.append(QString::number(mag));
     }
+    str.append(']');
+
+    return str;
 }
 
-void simulationEngine::dropRandom()
+void simulationEngine::cleanHistory()
 {
-    std::uniform_real_distribution<double> uniform01(0.0, 1.0);
-    double theta,phi;
-    for (int num=0;num<parts.length();++num){
-            // random direction
-            theta = 2 * M_PI * uniform01(generator);
-            phi = acos(1 - 2 * uniform01(generator));
-            parts[num].m.x = sin(phi) * cos(theta);
-            parts[num].m.y = sin(phi) * sin(theta);
-            parts[num].m.z = cos(phi);
-    }
+    worker.m_poses.clear();
+    worker.m_mags.clear();
 }
 
-void simulationEngine::dropAllUp()
+void simulationEngine::forceStop()
 {
-    for (int num=0;num<parts.length();++num){
-            // random direction
-            parts[num].m.x = 0;
-            parts[num].m.y = 0;
-            parts[num].m.z = 1;
-    }
+    workerThread.requestInterruption();
 }
 
-void simulationEngine::dropChessboard()
+void simulationEngine::finishStep()
 {
-    int num=0;
-    for (unsigned i=0;i<nx;++i){
-        for (unsigned j=0;j<ny;++j){
-            // random direction
-            parts[num].m.x = 0;
-            parts[num].m.y = 0;
-            parts[num].m.z = ((i%2)^(j%2))?-1:1;
-            ++num;
-        }
-    }
+    workerThread.exit();
+    fixStep();
+    allDone();
 }
 
-void simulationEngine::dropLineUpDown()
+void simulationEngine::fixStep()
 {
-    int num=0;
-    for (unsigned i=0;i<nx;++i){
-        for (unsigned j=0;j<ny;++j){
-            // random direction
-            parts[num].m.x = 0;
-            parts[num].m.y = 0;
-            parts[num].m.z = ((i%2))?-1:1;
-            ++num;
-        }
-    }
-}
-
-void simulationEngine::eCalc()
-{
-    E=0;
-    int j=0;
-    for (unsigned i=0;i<N;++i){
-        for (unsigned k=0; k<NEIGH; ++k){
-            j=parts[i].neigh[k];
-            if (j!=-1 && i!=j){
-                E += hamiltonianDipolar(parts[i].pos-parts[j].pos,parts[i].m,parts[j].m);
-            }
-        }
-        E -= 2.*(parts[i].EHa = pow(parts[i].m.scalar(Had),2)*Ha);
-        E -= 2.*(parts[i].EHc = parts[i].m.scalar(Hcd)*Hc);
-    }
-    E*=0.5;
-}
-
-void simulationEngine::mc(unsigned long steps)
-{
-    unsigned assump;
-    double de,newEHa,newEHc;
-    Vect newM,dm;
-    double theta,phi;
-    std::uniform_real_distribution<double> uniform01(0.0, 1.0);
-    std::uniform_int_distribution<int> uniformN(0,N-1);
-
-    do{
-        for (unsigned MCS=0; MCS<N; ++MCS){
-
-            assump=uniformN(generator);
-            newM=parts[assump].m;
-
-            theta = 2 * M_PI * uniform01(generator);
-            phi = acos(1 - 2 * uniform01(generator));
-
-            newM.x += r * sin(phi) * cos(theta);
-            newM.y += r * sin(phi) * sin(theta);
-            newM.z += r * cos(phi);
-            newM.normalize();
-            dm = parts[assump].m - newM;
-
-            de=0;
-            for (int k=0; k<NEIGH; ++k){
-                int j=parts[assump].neigh[k];
-                if (j!=-1)
-                    de -= hamiltonianDipolar(parts[assump].pos-parts[j].pos,dm,parts[j].m);
-            }
-            newEHa=pow(newM.scalar(Had),2)*Ha;
-            newEHc=newM.scalar(Hcd)*Hc;
-            de += (parts[assump].EHa - newEHa);
-            de += (parts[assump].EHc - newEHc);
-
-
-            if (exp(-de/T)>uniform01(generator)){
-                parts[assump].m = newM;
-                parts[assump].EHa=newEHa;
-                parts[assump].EHc=newEHc;
-                E+=de;
-            }
-        }
-
-        --steps;
-    } while (steps>0);
+    m_totalsteps = worker.m_poses.length();
+    totalStepsChanged();
 }

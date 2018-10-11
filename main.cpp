@@ -1,6 +1,8 @@
 #include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QtWebEngine>
 #include "simulationengine.h"
 
 int main(int argc, char *argv[])
@@ -9,10 +11,12 @@ int main(int argc, char *argv[])
 
     simulationEngine simulator;
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
     app.setOrganizationName("Far Eastern Federal Univercity");
     app.setOrganizationDomain("cc.dvfu.ru");
     app.setApplicationName("FePt magnetisation dynamics visualisation");
+
+    QtWebEngine::initialize();
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("simulator",&simulator);

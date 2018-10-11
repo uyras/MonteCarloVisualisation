@@ -17,10 +17,20 @@ CenterDialog {
         columns: 2
         Text {  text: "nx" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter }
 
-        SpinBox { id: fieldNx }
+        SpinBox {
+            id: fieldNx;
+            editable: true;
+            from: 1
+            to: 500
+        }
         Text { text: "ny" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter }
 
-        SpinBox { id: fieldNy }
+        SpinBox {
+            id: fieldNy;
+            editable: true;
+            from: 1
+            to: 500
+        }
 
         Text { text: "initial state"; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; Layout.columnSpan: 2 }
 
@@ -38,7 +48,10 @@ CenterDialog {
         Text { text: "random seed" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter }
 
         SpinBox {
-            id: fieldRandomSeed
+            id: fieldRandomSeed;
+            editable: true;
+            from: 0
+            to: 99999
         }
     }
 }

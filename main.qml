@@ -1,12 +1,15 @@
 ﻿import QtQuick 2.4
 import QtCanvas3D 1.1
 import QtQuick.Window 2.2
+import QtWebEngine 1.7
+import QtWebChannel 1.0
 
-import "glcode.js" as GLCode
-import "viscode.js" as VisCode
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.11
 import Qt.labs.settings 1.0
+import QtCharts 2.2
+
+import "qmljs.js" as Js
 
 Window {
     id: window
@@ -15,10 +18,11 @@ Window {
     height: 360
     visible: true
 
+    property int stepsPerSecond: 30 //how many frames should be in one second of video
+
     property int nx: 0;
     property int ny: 0;
-    property alias simplifiedArrows: chbSimple.checked
-    onSimplifiedArrowsChanged: GLCode.onSwitchArrows();
+    property bool isAnimationStarted: false;
 
     Settings {
         property alias x: window.x
@@ -43,41 +47,81 @@ Window {
         property alias az: addFramesDlg.az
     }
 
-    property var simulationData: [ ];
-
     Component.onCompleted: {
+        webChannel.registerObject("simulator", simulator);
         newAnimationDlg.open()
+        simulator.stepDone.connect(Js.onCalculationStep);
+        simulator.allDone.connect(Js.onCalculationFinished);
+        simulator.renderComplete.connect(Js.onRenderComplete);
+        chartLines.append(0,0);
+        chartLines.append(1,2);
+        chartLines.append(2,4);
+        chartLines.append(3,2);
+        chartLines2.append(3,0);
+        chartLines2.append(2,2);
+        chartLines2.append(1,4);
+        chartLines2.append(0,2);
     }
 
-    Canvas3D {
-        id: canvas3d
+    WebChannel {
+        id: webChannel
+    }
+
+    WebEngineView {
+        id: wew
         anchors.top: parent.top
         anchors.bottom: timeSlider.top
         anchors.left: parent.left
-        anchors.right: parent.right
-        focus: true
-        renderOnDemand: true;
+        anchors.right: chartRoot.left
+        url: "qrc:/spins.html"
+        webChannel: webChannel
+        width: 90;
+    }
 
-        onInitializeGL: {
-            GLCode.initializeGL(canvas3d);
-        }
+    Item {
+        id: chartRoot
+        width: 200
+        anchors.right: parent.right;
+        anchors.top: parent.top;
+        anchors.bottom: timeSlider.bottom;
+        Item {
+            y: parent.height
+            width: parent.height
+            height: parent.width
+            rotation: 270
+            transformOrigin: Item.TopLeft
+            ChartView {
+                id: chart
+                anchors.fill: parent
 
-        onPaintGL: {
-            GLCode.paintGL(canvas3d);
-        }
+                ValueAxis {
+                    id: va1
+                    min: 0
+                    max: 4
+                }
 
-        onResizeGL: {
-            GLCode.resizeGL(canvas3d);
-        }
+                ValueAxis {
+                    id: va2
+                    min: 0
+                    max: 4
+                }
 
-        MouseArea {
-            id: canvasMouseArea
-            anchors.fill: parent
-            onPressed: GLCode.onMouseDown(mouse);
-            onReleased: GLCode.onMouseUp(mouse);
-            onPositionChanged: GLCode.onMouseMove(mouse);
+                ValueAxis {
+                    id: va3
+                    min: 0
+                    max: 3
+                }
 
-            onWheel: GLCode.onWheelChanged(wheel)
+                LineSeries {
+                    id: chartLines
+                    name: "one"
+                }
+
+                LineSeries {
+                    id: chartLines2
+                    name: "two"
+                }
+            }
         }
     }
 
@@ -85,6 +129,7 @@ Window {
         id: checkBoxItem
         width: checkBoxList.width
         height: checkBoxList.height
+        anchors.right: wew.right
         color: "#80ffffff"
         radius: 10
         border.width: 1
@@ -94,12 +139,7 @@ Window {
             CheckBox {
                 id: chbArrows
                 text: "arrows"
-                onClicked: GLCode.onSwitchArrows();
                 checked: true;
-            }
-            CheckBox {
-                id: chbSimple
-                text: "simple"
             }
 
             CheckBox {
@@ -113,7 +153,18 @@ Window {
             }
             Button {
                 text: "dbg"
-                onClicked: GLCode.dbg()
+                onClicked: Js.showProgressBar()
+            }
+            Button {
+                text: "dbg2"
+                onClicked: Js.hideProgressBar()
+            }
+            Button {
+                text: "dbg3"
+                onClicked: {
+
+                    Js.hideProgressBar()
+                }
             }
         }
     }
@@ -121,21 +172,21 @@ Window {
     Slider {
         id: timeSlider
         height: 40
-        to: simulationData.length-1
+        to: simulator.totalSteps-1
         stepSize: 1
         value: 0
         anchors.bottom: toolBar.top
         anchors.left: parent.left
         anchors.right: parent.right
-        onValueChanged: GLCode.updateArrows(simulationData[value]);
+        onValueChanged: Js.onSliderChanged();
     }
 
     Timer {
         id: animationTimer
-        interval: 50
-        repeat: true
+        interval: 1000/stepsPerSecond
+        repeat: false
         running: false
-        onTriggered: GLCode.onAnimate();
+        onTriggered: Js.onAnimateTimer();
     }
 
     ToolBar {
@@ -189,20 +240,20 @@ Window {
                 id: btnPause
                 text: "Pause animation"
                 display: AbstractButton.IconOnly
-                visible: animationTimer.running
+                visible: isAnimationStarted
                 icon.source: "icons/outline-pause_circle_outline-24px.svg"
-                onClicked: animationTimer.stop();
+                onClicked: Js.stopAnimation()
             }
             ToolButton {
                 id: btnPlay
                 text: "Play animation"
                 display: AbstractButton.IconOnly
-                visible: !animationTimer.running
+                visible: !isAnimationStarted
                 icon.source: "icons/outline-play_circle_filled_white-24px.svg"
                 onClicked: {
                     if (timeSlider.value === timeSlider.to)
                         timeSlider.value = timeSlider.from;
-                    animationTimer.start();
+                    Js.startAnimation();
                 }
             }
             ToolButton {
@@ -245,14 +296,7 @@ Window {
     NewAnimationDialog{
         id: newAnimationDlg
         closePolicy: Popup.NoAutoClose
-        onAccepted: {
-            console.log("inited");
-            window.simulationData = [];
-            window.nx = nx;
-            window.ny = ny;
-            simulator.init(nx,ny,initState,randomSeed);
-            addFramesDlg.open();
-        }
+        onAccepted: Js.onNewAnimation();
 
         nx: 10
         ny: 10
@@ -263,31 +307,22 @@ Window {
     AddFramesDialog {
         id: addFramesDlg
         closePolicy: Popup.NoAutoClose
-        onAccepted: {
-            console.log("started");
-            for (var i=0; i<1000; ++i)
-                simulationData.push(simulator.makeStep(0,0,0,0,0,1,0,0,1,0.1));
-            timeSlider.to = simulationData.length-1;
-            timeSlider.onValueChanged();
+        onAccepted: Js.onAddFrames(addFramesDlg.framesCount)
+    }
+
+    Popup {
+        id: pbPopUp
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        width: parent.width*0.8
+        height: 150
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        contentItem: CalculationStatusBar {
+            id: pbItem
+            width: parent.width
+            height: parent.height
+            onClicked: Js.onCalculationForceStopped()
         }
     }
-
-    /*
-    Dialog {
-        id: addFramesDlg
-        dim: true
-        modal: true
-        standardButtons: Dialog.Save | Dialog.Cancel
-        title: "add frames to simulation"
-        contentItem: AddFramesDialog {}
-    }
-
-    Dialog {
-        id: newAnimationDlg
-        modal: true
-        standardButtons: Dialog.Apply | Dialog.Cancel
-        title: "Start new simulation"
-        contentItem: NewAnimationDialog {}
-        onAccepted: console.log("Ok clicked")
-    }*/
 }
