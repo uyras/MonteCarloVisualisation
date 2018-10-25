@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     simulationEngine simulator;
 
     QApplication app(argc, argv);
-    app.setOrganizationName("Far Eastern Federal Univercity");
+    app.setOrganizationName("Far Eastern Federal University");
     app.setOrganizationDomain("cc.dvfu.ru");
     app.setApplicationName("FePt magnetisation dynamics visualisation");
 
@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("simulator",&simulator);
+    engine.rootContext()->setContextProperty("plotModel",&simulator.m_plotData);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;

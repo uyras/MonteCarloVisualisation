@@ -22,21 +22,22 @@ CenterDialog {
             editable: true;
             from: 1
             to: 500
+            value: 10
         }
-        Text { text: "ny" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter }
 
+        Text { text: "ny" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter }
         SpinBox {
             id: fieldNy;
             editable: true;
             from: 1
             to: 500
+            value: 10
         }
 
-        Text { text: "initial state"; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; Layout.columnSpan: 2 }
+        Text { text: "initial state"; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }
 
         ComboBox {
             id: fieldInitState
-            Layout.columnSpan: 2
             model: [
                 "random",
                 "all up",
@@ -50,8 +51,9 @@ CenterDialog {
         SpinBox {
             id: fieldRandomSeed;
             editable: true;
-            from: 0
+            from: 1
             to: 99999
+            value: 1
         }
     }
 }

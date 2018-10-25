@@ -10,15 +10,24 @@ CenterDialog {
     title: "add frames to simulation"
 
     property alias framesCount: fieldFramesCount.value
-    property alias t: fieldT.value
-    property alias h: fieldH.value
-    property alias hx: fieldHX.value
-    property alias hy: fieldHy.value
-    property alias hz: fieldHZ.value
-    property alias a: fieldA.value
-    property alias ax: fieldAX.value
-    property alias ay: fieldAY.value
-    property alias az: fieldAZ.value
+    property alias t: fieldT.realValue
+    property alias tStore: fieldT.value
+    property alias h: fieldH.realValue
+    property alias hStore: fieldH.value
+    property alias hx: fieldHx.realValue
+    property alias hxStore: fieldHx.value
+    property alias hy: fieldHy.realValue
+    property alias hyStore: fieldHy.value
+    property alias hz: fieldHz.realValue
+    property alias hzStore: fieldHz.value
+    property alias a: fieldA.realValue
+    property alias aStore: fieldA.value
+    property alias ax: fieldAx.realValue
+    property alias axStore: fieldAx.value
+    property alias ay: fieldAy.realValue
+    property alias ayStore: fieldAy.value
+    property alias az: fieldAz.realValue
+    property alias azStore: fieldAz.value
 
     contentItem: GridLayout {
         rowSpacing: 3
@@ -30,23 +39,32 @@ CenterDialog {
             editable: true;
             from: 1
             to: 10000;
+            value: 100
         }
 
         Text { text: "T"; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }
 
-        SpinBox {
+        DoubleSpinBox {
             id: fieldT
-            value: 1
-            stepSize: 0
+            value: 0.01 * factor
+            realStepSize: 1.0
+            realFrom: 0.01
+            realTo: 10000
+            decimals: 2
+            editable: true;
             Layout.fillWidth: true;
         }
 
         Text { text: "H" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }
 
-        SpinBox {
+        DoubleSpinBox {
             id: fieldH
-            stepSize: 0
-            value: 1
+            value: 1.0 * factor
+            realStepSize: 0.0
+            realFrom: 0.0
+            realTo: 10000
+            decimals: 2
+            editable: true;
             Layout.fillWidth: true;
         }
 
@@ -56,24 +74,48 @@ CenterDialog {
             id: item1
             Layout.fillWidth: true;
 
-            SpinBox {
-                id: fieldHX
+            DoubleSpinBox {
+                id: fieldHx
+                value: 0.0 * factor
+                realStepSize: 0.05
+                realFrom: 0.0
+                realTo: 1
+                decimals: 2
+                editable: true;
             }
 
-            SpinBox {
+            DoubleSpinBox {
                 id: fieldHy
+                value: 0.0 * factor
+                realStepSize: 0.05
+                realFrom: 0.0
+                realTo: 1
+                decimals: 2
+                editable: true;
             }
 
-            SpinBox {
-                id: fieldHZ
+            DoubleSpinBox {
+                id: fieldHz
+                value: 0.0 * factor
+                realStepSize: 0.05
+                realFrom: 0.0
+                realTo: 1
+                decimals: 2
+                editable: true;
             }
 
         }
 
 
         Text { text: "anisotropy" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }
-        SpinBox {
+        DoubleSpinBox {
             id: fieldA
+            value: 0.0 * factor
+            realStepSize: 1.0
+            realFrom: 0.0
+            realTo: 10000
+            decimals: 2
+            editable: true;
             Layout.fillWidth: true;
         }
 
@@ -85,16 +127,34 @@ CenterDialog {
             id: item2
             Layout.fillWidth: true;
 
-            SpinBox {
-                id: fieldAX
+            DoubleSpinBox {
+                id: fieldAx
+                value: 0.0 * factor
+                realStepSize: 0.05
+                realFrom: 0.0
+                realTo: 1
+                decimals: 2
+                editable: true;
             }
 
-            SpinBox {
-                id: fieldAY
+            DoubleSpinBox {
+                id: fieldAy
+                value: 0.0 * factor
+                realStepSize: 0.05
+                realFrom: 0.0
+                realTo: 1
+                decimals: 2
+                editable: true;
             }
 
-            SpinBox {
-                id: fieldAZ
+            DoubleSpinBox {
+                id: fieldAz
+                value: 0.0 * factor
+                realStepSize: 0.05
+                realFrom: 0.0
+                realTo: 1
+                decimals: 2
+                editable: true;
             }
 
         }

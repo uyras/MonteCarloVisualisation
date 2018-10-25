@@ -56,6 +56,10 @@ function stopAnimation(){
 }
 
 function onSliderChanged(){
+    plot.timePos.removePoints(0,2);
+    plot.timePos.append(0,timeSlider.value);
+    plot.timePos.append(1,timeSlider.value);
+    updateTimeAxis();
     simulator.step = timeSlider.value;
     isRenderComplete = false;
     startRenderTime = dateNow();
@@ -84,7 +88,16 @@ function updateTimerInterval(){
 function onCalculationStarted(){
     showProgressBar();
     console.log("start simulations");
-    simulator.setup(0,0,0,0,0,1,0,0,1,0.1);
+    simulator.setup(
+                addFramesDlg.h,
+                addFramesDlg.hx,
+                addFramesDlg.hy,
+                addFramesDlg.hz,
+                addFramesDlg.t,
+                addFramesDlg.a,
+                addFramesDlg.ax,
+                addFramesDlg.ay,
+                addFramesDlg.az);
     simulator.run(requiredFrames);
 }
 
@@ -128,4 +141,12 @@ function onNewAnimation(){
     window.ny = newAnimationDlg.ny;
     simulator.init(newAnimationDlg.nx,newAnimationDlg.ny,newAnimationDlg.initState,newAnimationDlg.randomSeed);
     addFramesDlg.open();
+}
+
+// Updates the time axis taking in account the scale and current position of the cursor
+function updateTimeAxis(){
+    var roundVal = Math.round( timeSlider.value / (plot.plotInterval/2) ) * (plot.plotInterval/2)
+    var from = Math.max(0, roundVal - plot.plotInterval / 2);
+    plot.timeFrom = from;
+    plot.timeTo = from + plot.plotInterval;
 }

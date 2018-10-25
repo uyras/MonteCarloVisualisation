@@ -5,6 +5,8 @@ var wc = new QWebChannel(qt.webChannelTransport, function(channel) {
     // connect to a signal
     simulator.draw.connect(simulate);
     simulator.setXY.connect(setXY);
+    simulator.centerView.connect(centerView)
+
 });
 
 $(document).ready(function() {
@@ -53,8 +55,13 @@ function runVis(){
 function setXY(newX, newY){
     webglspins.updateOptions({
                                  cameraLocation: [newX/2, newY/2, Math.max(newX,newY)*1.25],
-                                 centerLocation: [newX/2, newY/2, 0]
+                                 centerLocation: [newX/2, newY/2, 0],
+                                 upVector: [0,1,0]
                              });
     x=newX;
     y=newY;
+}
+
+function centerView(){
+    setXY(x,y);
 }

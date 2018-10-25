@@ -56,7 +56,7 @@ void monteCarloCore::mc(unsigned long steps)
 
         --steps;
     } while (steps>0);
-    allDone();
+    mcAllDone();
 }
 
 
@@ -197,5 +197,6 @@ void monteCarloCore::fixStep(unsigned long stepnum)
     }
     m_poses.append(poses);
     m_mags.append(mags);
-    stepDone(stepnum);
+    m_energies.append(E/N);
+    mcStepDone(stepnum);
 }

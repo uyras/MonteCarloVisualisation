@@ -47,6 +47,7 @@ class monteCarloCore : public QObject
 
     typedef QVarLengthArray < QVector < int > > posType;
     typedef QVarLengthArray < QVector < qreal > > magType;
+    typedef QVarLengthArray < qreal > energyType;
 
 public:
     explicit monteCarloCore(QObject *parent = nullptr);
@@ -57,9 +58,11 @@ public:
     void dropChessboard();
     void dropLineUpDown();
     void eCalc();
+    double getE() const { return E; }
 
     posType m_poses;
     magType m_mags;
+    energyType m_energies;
 
     unsigned nx, ny, N;
     double Hc, T, Ha, r;
@@ -67,8 +70,8 @@ public:
     std::default_random_engine generator;
 
 signals:
-    void stepDone(unsigned);
-    void allDone();
+    void mcStepDone(unsigned);
+    void mcAllDone();
 
 public slots:
     void mc(unsigned long steps = 1);

@@ -3,8 +3,8 @@
 simulationEngine::simulationEngine(QObject *parent) : QObject(parent)
 {
     connect(this, SIGNAL(run(unsigned long)), &worker, SLOT(mc(unsigned long)));
-    connect(&worker, SIGNAL(allDone()), this, SLOT(finishStep()));
-    connect(&worker, SIGNAL(stepDone(unsigned)), this, SIGNAL(stepDone(unsigned)));
+    connect(&worker, SIGNAL(mcAllDone()), this, SLOT(finishCalculations()));
+    connect(&worker, SIGNAL(mcStepDone(unsigned)), this, SIGNAL(stepDone(unsigned)));
 
 
     worker.moveToThread(&workerThread);
@@ -21,7 +21,7 @@ void simulationEngine::init(unsigned nx, unsigned ny, unsigned initialState, uns
     cleanHistory();
     setXY(nx,ny);
     m_step = 0;
-    stepsChanged();
+    stepValueChanged();
     worker.generator.seed(seed);
     worker.nx = nx;
     worker.ny = ny;
@@ -101,6 +101,7 @@ void simulationEngine::cleanHistory()
 {
     worker.m_poses.clear();
     worker.m_mags.clear();
+    worker.m_energies.clear();
 }
 
 void simulationEngine::forceStop()
@@ -108,15 +109,53 @@ void simulationEngine::forceStop()
     workerThread.requestInterruption();
 }
 
-void simulationEngine::finishStep()
+void simulationEngine::finishCalculations()
 {
     workerThread.exit();
-    fixStep();
+
+    //update value of totalStepps
+    m_totalsteps = ushort(worker.m_poses.length());
+    totalStepsValueChanged();
+
+    fillPlot();
     allDone();
 }
 
-void simulationEngine::fixStep()
+void simulationEngine::fillPlot()
 {
-    m_totalsteps = worker.m_poses.length();
-    totalStepsChanged();
+    int i,j;
+    int start = m_plotData.rowCount(QModelIndex());
+    int end = worker.m_poses.length();
+    m_plotData.beginAddRow(end-start);
+    double totalMag[3];
+    for (i = start; i < end; ++i){
+        //QVector3D totalMag;
+        totalMag[0]=0; totalMag[1]=0; totalMag[2]=0;
+        for (j = 0; j < int(worker.N); ++j){
+            totalMag[0]+=worker.m_mags[i][j*3+0];
+            totalMag[1]+=worker.m_mags[i][j*3+1];
+            totalMag[2]+=worker.m_mags[i][j*3+2];
+        }
+        totalMag[0] /= worker.N;
+        totalMag[1] /= worker.N;
+        totalMag[2] /= worker.N;
+        m_plotData.addRow({
+                              double(i),
+                              totalMag[0],
+                              totalMag[1],
+                              totalMag[2],
+                              sqrt(totalMag[0]*totalMag[0]+totalMag[1]*totalMag[1]+totalMag[2]*totalMag[2]),
+                              worker.m_energies[i],
+                              worker.T,
+                              worker.Had.x,
+                              worker.Had.y,
+                              worker.Had.z,
+                              worker.Ha,
+                              worker.Hcd.x,
+                              worker.Hcd.y,
+                              worker.Hcd.z,
+                              worker.Hc
+                          });
+    }
+    m_plotData.endAddRow();
 }

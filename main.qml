@@ -36,15 +36,17 @@ Window {
         property alias randomSeed: newAnimationDlg.randomSeed
 
         property alias framesCount: addFramesDlg.framesCount
-        property alias t: addFramesDlg.y
-        property alias h: addFramesDlg.h
-        property alias hx: addFramesDlg.hx
-        property alias hy: addFramesDlg.hy
-        property alias hz: addFramesDlg.hz
-        property alias a: addFramesDlg.a
-        property alias ax: addFramesDlg.ax
-        property alias ay: addFramesDlg.ay
-        property alias az: addFramesDlg.az
+        property alias t: addFramesDlg.tStore
+        property alias h: addFramesDlg.hStore
+        property alias hx: addFramesDlg.hxStore
+        property alias hy: addFramesDlg.hyStore
+        property alias hz: addFramesDlg.hzStore
+        property alias a: addFramesDlg.aStore
+        property alias ax: addFramesDlg.axStore
+        property alias ay: addFramesDlg.ayStore
+        property alias az: addFramesDlg.azStore
+
+        property alias showPlotCheckbox: showPlotCheckbox.checked
     }
 
     Component.onCompleted: {
@@ -53,14 +55,7 @@ Window {
         simulator.stepDone.connect(Js.onCalculationStep);
         simulator.allDone.connect(Js.onCalculationFinished);
         simulator.renderComplete.connect(Js.onRenderComplete);
-        chartLines.append(0,0);
-        chartLines.append(1,2);
-        chartLines.append(2,4);
-        chartLines.append(3,2);
-        chartLines2.append(3,0);
-        chartLines2.append(2,2);
-        chartLines2.append(1,4);
-        chartLines2.append(0,2);
+        plotModel.minMaxChanged.connect(function(){console.log(JSON.stringify(plotModel.minmax))}); //needed for better debug
     }
 
     WebChannel {
@@ -69,103 +64,241 @@ Window {
 
     WebEngineView {
         id: wew
-        anchors.top: parent.top
-        anchors.bottom: timeSlider.top
-        anchors.left: parent.left
-        anchors.right: chartRoot.left
         url: "qrc:/spins.html"
         webChannel: webChannel
         width: 90;
-    }
-
-    Item {
-        id: chartRoot
-        width: 200
-        anchors.right: parent.right;
-        anchors.top: parent.top;
-        anchors.bottom: timeSlider.bottom;
-        Item {
-            y: parent.height
-            width: parent.height
-            height: parent.width
-            rotation: 270
-            transformOrigin: Item.TopLeft
-            ChartView {
-                id: chart
-                anchors.fill: parent
-
-                ValueAxis {
-                    id: va1
-                    min: 0
-                    max: 4
-                }
-
-                ValueAxis {
-                    id: va2
-                    min: 0
-                    max: 4
-                }
-
-                ValueAxis {
-                    id: va3
-                    min: 0
-                    max: 3
-                }
-
-                LineSeries {
-                    id: chartLines
-                    name: "one"
-                }
-
-                LineSeries {
-                    id: chartLines2
-                    name: "two"
-                }
-            }
-        }
+        anchors.top: parent.top
+        anchors.bottom: timeSlider.top
+        anchors.left: parent.left
+        anchors.right: (showPlotCheckbox.checked) ? layoutSeparator.left : parent.right
     }
 
     Rectangle {
-        id: checkBoxItem
-        width: checkBoxList.width
-        height: checkBoxList.height
+        id: layoutSeparator
+        width: 5
+        x: parent.width - 300
+        color: "#dbdbdb"
+        border.width: 0
+        anchors.top: parent.top
+        anchors.bottom: timeSlider.top
+        visible: showPlotCheckbox.checked
+
+        MouseArea {
+            id: dragArea
+            anchors.fill: parent
+            cursorShape: Qt.SplitHCursor
+            drag.target: parent
+            drag.axis: Drag.XAxis
+            drag.minimumX: window.width / 3
+            drag.maximumX: window.width-200
+        }
+    }
+
+    PlotRoot {
+        id: plot
+        anchors.top: parent.top
+        anchors.bottom: timeSlider.top
+        anchors.left: layoutSeparator.right
+        anchors.right: parent.right
+        visible: showPlotCheckbox.checked
+
+        mxMin: plotModel.minmax.mxMin
+        mxMax: plotModel.minmax.mxMax
+        mxEnabled: chkPlot_mx.checked
+
+        myMin: plotModel.minmax.myMin
+        myMax: plotModel.minmax.myMax
+        myEnabled: chkPlot_my.checked
+
+        mzMin: plotModel.minmax.mzMin
+        mzMax: plotModel.minmax.mzMax
+        mzEnabled: chkPlot_mz.checked
+
+        mMin: plotModel.minmax.mMin
+        mMax: plotModel.minmax.mMax
+        mEnabled: chkPlot_m.checked
+
+        eMin: plotModel.minmax.eMin
+        eMax: plotModel.minmax.eMax
+        eEnabled: chkPlot_e.checked
+
+        tMin: plotModel.minmax.tMin
+        tMax: plotModel.minmax.tMax
+        tEnabled: chkPlot_t.checked
+
+        axMin: plotModel.minmax.axMin
+        axMax: plotModel.minmax.axMax
+        axEnabled: chkPlot_ax.checked
+
+        ayMin: plotModel.minmax.ayMin
+        ayMax: plotModel.minmax.ayMax
+        ayEnabled: chkPlot_ay.checked
+
+        azMin: plotModel.minmax.azMin
+        azMax: plotModel.minmax.azMax
+        azEnabled: chkPlot_az.checked
+
+        aMin: plotModel.minmax.aMin
+        aMax: plotModel.minmax.aMax
+        aEnabled: chkPlot_a.checked
+
+        hxMin: plotModel.minmax.hxMin
+        hxMax: plotModel.minmax.hxMax
+        hxEnabled: chkPlot_hx.checked
+
+        hyMin: plotModel.minmax.hyMin
+        hyMax: plotModel.minmax.hyMax
+        hyEnabled: chkPlot_hy.checked
+
+        hzMin: plotModel.minmax.hzMin
+        hzMax: plotModel.minmax.hzMax
+        hzEnabled: chkPlot_hz.checked
+
+        hMin: plotModel.minmax.hMin
+        hMax: plotModel.minmax.hMax
+        hEnabled: chkPlot_h.checked
+    }
+
+    Button {
+        text: "settings"
+        onClicked: imgSettings.open()
         anchors.right: wew.right
-        color: "#80ffffff"
-        radius: 10
-        border.width: 1
-        border.color: "white"
-        Column {
-            id: checkBoxList
-            CheckBox {
-                id: chbArrows
-                text: "arrows"
-                checked: true;
+
+        Menu {
+            id: imgSettings
+            y: parent.height
+            x: parent.width - width
+
+            MenuItem {
+                id: showPlotCheckbox
+                text: "show plot"
+                checkable: true
+                checked: false
             }
 
-            CheckBox {
-                text: "surface"
-            }
-            CheckBox {
-                text: "lattice"
-            }
-            CheckBox {
-                text: "axis"
-            }
-            Button {
-                text: "dbg"
-                onClicked: Js.showProgressBar()
-            }
-            Button {
-                text: "dbg2"
-                onClicked: Js.hideProgressBar()
-            }
-            Button {
-                text: "dbg3"
-                onClicked: {
+            MenuSeparator{}
 
-                    Js.hideProgressBar()
+
+            MenuItem {
+                id: chkPlot_e
+                text: "E"
+                checkable: true
+                enabled: plotModel.minmax.eMin!==plotModel.minmax.eMax
+            }
+
+            MenuItem {
+                id: chkPlot_t
+                text: "T"
+                checkable: true
+                enabled: plotModel.minmax.tMin!==plotModel.minmax.tMax
+            }
+
+            Menu {
+                title: "Vector M"
+
+                MenuItem {
+                    id: chkPlot_m
+                    text: "|M|"
+                    checkable: true
+                    enabled: plotModel.minmax.mMin!==plotModel.minmax.mMax
+                }
+
+                MenuItem {
+                    id: chkPlot_mx
+                    text: "Mx"
+                    checkable: true
+                    enabled: plotModel.minmax.mxMin!==plotModel.minmax.mxMax
+                }
+
+                MenuItem {
+                    id: chkPlot_my
+                    text: "My"
+                    checkable: true
+                    enabled: plotModel.minmax.myMin!==plotModel.minmax.myMax
+                }
+
+                MenuItem {
+                    id: chkPlot_mz
+                    text: "Mz"
+                    checkable: true
+                    enabled: plotModel.minmax.mzMin!==plotModel.minmax.mzMax
+                    checked: true
                 }
             }
+
+            Menu {
+                title: "Vector A"
+
+                MenuItem {
+                    id: chkPlot_a
+                    text: "A"
+                    checkable: true
+                    enabled: plotModel.minmax.aMin!==plotModel.minmax.aMax
+                }
+
+                MenuItem {
+                    id: chkPlot_ax
+                    text: "Ax"
+                    checkable: true
+                    enabled: plotModel.minmax.axMin!==plotModel.minmax.axMax
+                }
+
+                MenuItem {
+                    id: chkPlot_ay
+                    text: "Ay"
+                    checkable: true
+                    enabled: plotModel.minmax.ayMin!==plotModel.minmax.ayMax
+                }
+
+                MenuItem {
+                    id: chkPlot_az
+                    text: "Az"
+                    checkable: true
+                    enabled: plotModel.minmax.azMin!==plotModel.minmax.azMax
+                }
+            }
+
+
+            Menu{
+                title: "Vector H"
+
+                MenuItem {
+                    id: chkPlot_h
+                    text: "|H|"
+                    checkable: true
+                    enabled: plotModel.minmax.hMin!==plotModel.minmax.hMax
+                }
+
+                MenuItem {
+                    id: chkPlot_hx
+                    text: "Hx"
+                    checkable: true
+                    enabled: plotModel.minmax.hxMin!==plotModel.minmax.hxMax
+                }
+
+                MenuItem {
+                    id: chkPlot_hy
+                    text: "Hy"
+                    checkable: true
+                    enabled: plotModel.minmax.hyMin!==plotModel.minmax.hyMax
+                }
+
+                MenuItem {
+                    id: chkPlot_hz
+                    text: "Hz"
+                    checkable: true
+                    enabled: plotModel.minmax.hzMin!==plotModel.minmax.hzMax
+                }
+            }
+
+            /*MenuItem {
+                text: "сделать хорошо"
+                onClicked: chart.zoomIn()
+            }
+            MenuItem {
+                text: "еще лучше"
+                onClicked: chart.zoomOut()
+            }*/
         }
     }
 
@@ -282,6 +415,14 @@ Window {
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
+            }
+
+            ToolButton {
+                id: btnCenterView
+                text: "Center view"
+                display: AbstractButton.IconOnly
+                icon.source: "icons/baseline-center_focus_strong-24px.svg"
+                onClicked: simulator.centerView();
             }
 
             ToolButton {

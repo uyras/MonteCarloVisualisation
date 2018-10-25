@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>glcode.js</file>
         <file>icons/outline-add-24px.svg</file>
         <file>icons/outline-fast_forward-24px.svg</file>
         <file>icons/outline-fast_rewind-24px.svg</file>
@@ -12,16 +11,16 @@
         <file>icons/outline-settings-24px.svg</file>
         <file>icons/outline-skip_next-24px.svg</file>
         <file>icons/outline-skip_previous-24px.svg</file>
-        <file>arrowHelper.js</file>
         <file>AddFramesDialog.qml</file>
         <file>NewAnimationDialog.qml</file>
         <file>CenterDialog.qml</file>
-        <file>rainbowvis.js</file>
         <file>spins.html</file>
         <file>webglspins.js</file>
         <file>spinscode.js</file>
         <file>qmljs.js</file>
         <file>CalculationStatusBar.qml</file>
         <file>icons/baseline-center_focus_strong-24px.svg</file>
+        <file>PlotRoot.qml</file>
+        <file>DoubleSpinBox.qml</file>
     </qresource>
 </RCC>
