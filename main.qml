@@ -1,5 +1,4 @@
 ﻿import QtQuick 2.4
-import QtCanvas3D 1.1
 import QtQuick.Window 2.2
 import QtWebEngine 1.7
 import QtWebChannel 1.0
@@ -7,7 +6,6 @@ import QtWebChannel 1.0
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.11
 import Qt.labs.settings 1.0
-import QtCharts 2.2
 
 import "qmljs.js" as Js
 

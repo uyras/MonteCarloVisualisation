@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QAbstractTableModel>
 #include <QVarLengthArray>
+#include <array>
 
 
 /*struct dataRow { //this field structure is underlying in datarow type

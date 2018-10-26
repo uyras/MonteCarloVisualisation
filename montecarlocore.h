@@ -1,6 +1,8 @@
 #ifndef MONTECARLOCORE_H
 #define MONTECARLOCORE_H
 
+#define _USE_MATH_DEFINES
+
 #include <QObject>
 #include <QVector>
 #include <QThread>

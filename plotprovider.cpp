@@ -8,8 +8,8 @@ plotProvider::plotProvider():
         m_minmaxKeys[i*2+0] = dataRowKeys[i]+"Min";
         m_minmaxKeys[i*2+1] = dataRowKeys[i]+"Max";
     }
-
-    updateMinMax({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+    datarow tmp = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    updateMinMax(tmp);
 }
 
 int plotProvider::rowCount(const QModelIndex &index) const
