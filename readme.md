@@ -6,13 +6,13 @@ with various temperature anisotropy and Zeeman field.
 You can run simulation with arbitrary number of MC steps and visually observe the system on every step.
 Also you can tune the parameters literally for every step of simulations.
 
-You can download pre-build binaries here: [https://github.com/uyras/MonteCarloVisualisation/releases](https://github.com/uyras/MonteCarloVisualisation/releases)
+You can **download** pre-build binaries here: [https://github.com/uyras/MonteCarloVisualisation/releases](https://github.com/uyras/MonteCarloVisualisation/releases)
 
 ## Example
 
 ![This is a gif demo animation, wait for download](docs/images/demo.gif)
 
-The simulation of system with 100\*100 spins with low temperature (near 0K) and weak anisotropy along Z axis.
+This is the simulation of system with 100\*100 spins with low temperature (near 0K) and weak anisotropy along Z axis.
 
 ## Model
 
@@ -26,7 +26,7 @@ The distance between nearest dipoles is always 1, and can not be changed. Positi
 
 ## Monte-carlo simulations
 
-The program uses [Metropolis–Hastings algorithm](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm) with very typical probabilities. One Monte-Carlo step (MCS) means sequence of $`N`$ random trials of random magnetic moment rotates. Every single rotate deviates the vector M to random direction and random distance, but no more than 0.1 (in relative units). 
+The program uses [Metropolis–Hastings algorithm](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm) with very typical probabilities. One Monte-Carlo step (MCS) means sequence of _N_ random trials of random magnetic moment rotates. Every single rotate deviates the vector M to random direction and random distance, but no more than 0.1 (in relative units). 
 
 ## Work-flow
 
@@ -34,7 +34,7 @@ The typical work-flow is as follows: you set up the system size and it's initial
 
 Then, you can navigate through already calculated frames and see how system parameters are changing.
 
-For example, you start with random system of $`10*10`$ size and random ordering. Then, bring the temperature to low and run 100 steps to somehow order the system (lowdown the energy). Then add external field and increase the temperature up to room, and simulate 1000 steps (10 times longer than before). Then add anisotropy along Z axis and simulate 10000 steps with near-0 temperature.
+For example, you start with random system of _10\*10_ size and random ordering. Then, bring the temperature to low and run 100 steps to somehow order the system (lowdown the energy). Then add external field and increase the temperature up to room, and simulate 1000 steps (10 times longer than before). Then add anisotropy along Z axis and simulate 10000 steps with near-0 temperature.
 
 The program gives you a wide range of possible variants. Physicality of tuned parameters is up to you.
 
@@ -47,7 +47,7 @@ You can consider this dialog as "main settings". It is the first what you will s
 ![Start new simulation](docs/images/systemSettings.png)
 
 This dialog requires main parameters of system, such as:
-* _nx_ and _ny_ - number of spins along X and Y axes. The total size of system will be $`N=nx*ny`$.
+* _nx_ and _ny_ - number of spins along X and Y axes. The total size of system will be ![`N=nx*ny`](https://latex.codecogs.com/gif.latex?N%3D%5Ctext%7Bnx%7D*%5Ctext%7Bny%7D).
 * _initial state_ - the basic configuration from which you will start the simulation. It is important parameter, such as dipole-dipole interaction itself in ground state will be arranged in chessboard order (one up, one down). And in such case further simulation will not change anything.
 * _random seed_ - init point for pseudo-random number generator, [read here](https://en.wikipedia.org/wiki/Random_seed). This setting is here to provide repeatability of result. Usually this value is dependent on time. Despite Monte-Carlo is random algorithm, you will get the same result by running program with same parameters and same _random seed_.
 
@@ -56,9 +56,9 @@ By clicking on _save_ button previous system and history of simulation will rese
 ### "Add frames" dialog
 
 You will see this dialog every time when need to add new frames to animation. New animation always starts from the point where previous one finishes.
+All units in this dialog are relative.
 
 ![Add frames](docs/images/addFrames.png)
-All units in this dialog are relative.
 
 * _frames count_ - number of frames which you need to simulate
 * _T_ - temperature. Can't be 0
@@ -95,4 +95,4 @@ The MC simulation starts right after you press _Save_ button and might be cancel
 
 ## Thanks
 * The [WebGlSpins](https://github.com/FlorianRhiem/WebGLSpins.js/) JavaScript library is used for fast rendering of big arrays of spins. Really fast, effective and easy.
-* [Prof. Dr. Markus Münzenberg](https://physik.uni-greifswald.de/en/research-groups/interface-and-surface-physics-prof-markus-muenzenberg/team/team/group-members/markus/), Greifswald University, Greifswald, Germany. For valuable discussions and collaboration.
+* Prof. Dr. [Markus Münzenberg](https://physik.uni-greifswald.de/en/research-groups/interface-and-surface-physics-prof-markus-muenzenberg/team/team/group-members/markus/), Greifswald University, Greifswald, Germany. For valuable discussions and collaboration.
