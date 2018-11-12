@@ -8,6 +8,19 @@ Also you can tune the parameters literally for every step of simulations.
 
 You can **download** pre-build binaries here: [https://github.com/uyras/MonteCarloVisualisation/releases](https://github.com/uyras/MonteCarloVisualisation/releases)
 
+* [GUI for view Monte-Carlo (MC) simulation of remagnetization process](#gui-for-view-monte-carlo-mc-simulation-of-remagnetization-process)
+  * [Example](#example)
+  * [Model](#model)
+  * [Monte-carlo simulations](#monte-carlo-simulations)
+  * [Work-flow](#work-flow)
+  * [User interface](#user-interface)
+     * ["Start new simulation" dialog](#start-new-simulation-dialog)
+     * ["Add frames" dialog](#add-frames-dialog)
+     * [Main interface](#main-interface)
+  * [TODO](#todo)
+  * [Thanks](#thanks)
+
+
 ## Example
 
 ![This is a gif demo animation, wait for download](docs/images/demo.gif)
