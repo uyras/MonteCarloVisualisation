@@ -8,17 +8,16 @@ Also you can tune the parameters literally for every step of simulations.
 
 You can **download** pre-build binaries here: [https://github.com/uyras/MonteCarloVisualisation/releases](https://github.com/uyras/MonteCarloVisualisation/releases)
 
-* [GUI for view Monte-Carlo (MC) simulation of remagnetization process](#gui-for-view-monte-carlo-mc-simulation-of-remagnetization-process)
-  * [Example](#example)
-  * [Model](#model)
-  * [Monte-carlo simulations](#monte-carlo-simulations)
-  * [Work-flow](#work-flow)
-  * [User interface](#user-interface)
-     * ["Start new simulation" dialog](#start-new-simulation-dialog)
-     * ["Add frames" dialog](#add-frames-dialog)
-     * [Main interface](#main-interface)
-  * [TODO](#todo)
-  * [Thanks](#thanks)
+* [Example](#example)
+* [Model](#model)
+* [Monte-carlo simulations](#monte-carlo-simulations)
+* [Work-flow](#work-flow)
+* [User interface](#user-interface)
+ * ["Start new simulation" dialog](#start-new-simulation-dialog)
+ * ["Add frames" dialog](#add-frames-dialog)
+ * [Main interface](#main-interface)
+* [TODO](#todo)
+* [Thanks](#thanks)
 
 
 ## Example
@@ -77,7 +76,8 @@ All units in this dialog are relative.
 * _T_ - temperature. Can't be 0
 * _H_ - the length of vector of external field.
 * _H vector_ - the direction of vector of external field. Here is 3 fields: _x_, _y_ and _z_ components. It is better to be unit-length because internally the resulting vector is the production of parameters _H_ and _H vector_.
-* _anisotropy_ and _anisotropy_vector_ - the same as previous but for anisotropy for each spin.
+* _anisotropy_ - anisotropy constant,
+* _anisotropy_vector_ - the same as _H vector_ but for anisotropy for each spin.
 
 The MC simulation starts right after you press _Save_ button and might be canceled at any time. All already calculated frames will be saved and available on time lime.
 

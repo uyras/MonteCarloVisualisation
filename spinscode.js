@@ -5,11 +5,24 @@ var wc = new QWebChannel(qt.webChannelTransport, function(channel) {
     // connect to a signal
     simulator.draw.connect(simulate);
     simulator.setXY.connect(setXY);
-    simulator.centerView.connect(centerView)
-
+    simulator.centerView.connect(centerView);
+    simulator.isHelpOpenedValueChanged.connect(function(){
+        $("#helpContent").toggle(simulator.isHelpOpened);
+    });
 });
 
 $(document).ready(function() {
+    $.get("qrc:///readme.md",function(data){
+        var converter = new showdown.Converter();
+        converter.setFlavor('github');
+        $('#helpContent').append(converter.makeHtml(data));
+        $('a').each(function(){
+            if ($(this).attr('href')[0]!=='#'){
+                $(this).attr('href',"#");
+                //$( this ).replaceWith( $( this ).text() );
+            }
+        });
+    });
     var cim = 'vec3 colormap(vec3 direction) {'+
             '        vec3 color_down = vec3(0.0, 0.0, 1.0);'+
             '        vec3 color_mid = vec3(1.0, 1.0, 1.0);'+
@@ -54,8 +67,8 @@ function runVis(){
 
 function setXY(newX, newY){
     webglspins.updateOptions({
-                                 cameraLocation: [newX/2, newY/2, Math.max(newX,newY)*1.25],
-                                 centerLocation: [newX/2, newY/2, 0],
+                                 cameraLocation: [(newX-1)/2,(newY-1)/2,Math.max(newX,newY)*1.3],
+                                 centerLocation: [(newX-1)/2,(newY-1)/2,0],
                                  upVector: [0,1,0]
                              });
     x=newX;

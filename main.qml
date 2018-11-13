@@ -11,7 +11,7 @@ import "qmljs.js" as Js
 
 Window {
     id: window
-    title: qsTr("FePtMagDynamicVisualisation2")
+    title: "Monte-Carlo Visualisation"
     width: 640
     height: 360
     visible: true
@@ -21,6 +21,8 @@ Window {
     property int nx: 0;
     property int ny: 0;
     property bool isAnimationStarted: false;
+
+    property bool isSystemCreated: false;
 
     Settings {
         property alias x: window.x
@@ -49,11 +51,12 @@ Window {
 
     Component.onCompleted: {
         webChannel.registerObject("simulator", simulator);
-        newAnimationDlg.open()
         simulator.stepDone.connect(Js.onCalculationStep);
         simulator.allDone.connect(Js.onCalculationFinished);
         simulator.renderComplete.connect(Js.onRenderComplete);
         plotModel.minMaxChanged.connect(function(){console.log(JSON.stringify(plotModel.minmax))}); //needed for better debug
+
+        Js.openMainInterface();
     }
 
     WebChannel {
@@ -157,7 +160,33 @@ Window {
         hEnabled: chkPlot_h.checked
     }
 
+
+    ToolButton {
+        id: btnOpenHelp
+        text: "Open help page"
+        display: AbstractButton.IconOnly
+        visible: !simulator.isHelpOpened
+        icon.source: "icons/outline-help-24px.svg"
+        onClicked: Js.openHelp()
+
+        anchors.verticalCenter: btnSettingsTop.verticalCenter
+        anchors.right: btnSettingsTop.left
+    }
+
+    ToolButton {
+        id: btnCloseHelp
+        text: "Open help page"
+        display: AbstractButton.IconOnly
+        visible: simulator.isHelpOpened
+        icon.source: "icons/outline-clear-24px.svg"
+        onClicked: Js.closeHelp()
+
+        anchors.verticalCenter: btnSettingsTop.verticalCenter
+        anchors.right: btnSettingsTop.left
+    }
+
     Button {
+        id: btnSettingsTop;
         text: "settings"
         onClicked: imgSettings.open()
         anchors.right: wew.right
@@ -337,6 +366,7 @@ Window {
                 display: AbstractButton.IconOnly
                 icon.source: "icons/outline-add-24px.svg"
                 onClicked: addFramesDlg.open()
+                enabled: window.isSystemCreated
             }
 
             ToolButton {

@@ -1,6 +1,7 @@
 #include "simulationengine.h"
 
-simulationEngine::simulationEngine(QObject *parent) : QObject(parent)
+simulationEngine::simulationEngine(QObject *parent) : QObject(parent),
+    m_isHelpOpened(false)
 {
     connect(this, SIGNAL(run(unsigned long)), &worker, SLOT(mc(unsigned long)));
     connect(&worker, SIGNAL(mcAllDone()), this, SLOT(finishCalculations()));

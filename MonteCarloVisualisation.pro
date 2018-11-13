@@ -35,6 +35,3 @@ HEADERS += \
     simulationengine.h \
     montecarlocore.h \
     plotprovider.h
-
-DISTFILES += \
-    spins.html

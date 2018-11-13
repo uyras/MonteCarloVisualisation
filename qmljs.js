@@ -140,6 +140,7 @@ function onNewAnimation(){
     window.nx = newAnimationDlg.nx;
     window.ny = newAnimationDlg.ny;
     simulator.init(newAnimationDlg.nx,newAnimationDlg.ny,newAnimationDlg.initState,newAnimationDlg.randomSeed);
+    window.isSystemCreated = true;
     addFramesDlg.open();
 }
 
@@ -149,4 +150,20 @@ function updateTimeAxis(){
     var from = Math.max(0, roundVal - plot.plotInterval / 2);
     plot.timeFrom = from;
     plot.timeTo = from + plot.plotInterval;
+}
+
+function openHelp(){
+    simulator.isHelpOpened = true;
+}
+
+function closeHelp(){
+    simulator.isHelpOpened = false;
+}
+
+function openMainInterface(){
+    if (!window.isSystemCreated)
+        newAnimationDlg.open();
+    else {
+        timeSlider.onValueChanged();
+    }
 }

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     simulationEngine simulator;
 
     QApplication app(argc, argv);
-    app.setOrganizationName("Far Eastern Federal University");
+    app.setOrganizationName("Far_Eastern_Federal_University");
     app.setOrganizationDomain("cc.dvfu.ru");
     app.setApplicationName("FePt magnetisation dynamics visualisation");
 

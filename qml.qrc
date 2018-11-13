@@ -15,12 +15,23 @@
         <file>NewAnimationDialog.qml</file>
         <file>CenterDialog.qml</file>
         <file>spins.html</file>
-        <file>webglspins.js</file>
         <file>spinscode.js</file>
         <file>qmljs.js</file>
         <file>CalculationStatusBar.qml</file>
         <file>icons/baseline-center_focus_strong-24px.svg</file>
         <file>PlotRoot.qml</file>
         <file>DoubleSpinBox.qml</file>
+        <file>docs/images/addFrames.png</file>
+        <file>docs/images/demo.gif</file>
+        <file>docs/images/interface.png</file>
+        <file>docs/images/interface2.png</file>
+        <file>docs/images/process.png</file>
+        <file>docs/images/systemSettings.png</file>
+        <file>readme.md</file>
+        <file>3rdparty/jquery-2.2.4.min.js</file>
+        <file>3rdparty/webglspins.js</file>
+        <file>3rdparty/showdown.min.js</file>
+        <file>icons/outline-clear-24px.svg</file>
+        <file>icons/outline-help-24px.svg</file>
     </qresource>
 </RCC>

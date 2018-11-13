@@ -2,29 +2,76 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
-    <title>Vis mate by Yuriy Shevchenko</title>
+    <title>Program made by Yuriy Shevchenko</title>
     <style>
       html, body {
         height:100%;
         padding:0;
         margin:0;
         overflow:hidden;
+        font-family: Lato,Helvetica Neue,Helvetica,sans-serif;
+        color: rgba(0,0,0,.75);
       }
       #webgl-canvas {
         width:100%;
         height:100%;
         margin:0;
       }
+      blockquote, dl, ol, p, pre, ul {
+          margin: 1.2em 0;
+      }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0.8em 0;
+            line-height: 1.33;
+        }
+        h1 {
+            display: block;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        h2 {
+            display: block;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        h3 {
+            display: block;
+            font-size: 1.17em;
+            font-weight: bold;
+        }
+        a:focus, a:hover {
+            text-decoration: none;
+        }
+
+        a {
+            color: #0c93e4;
+            text-decoration: underline;
+            text-decoration-skip: ink;
+        }
+
+        img{
+            max-width: 100%;
+        }
+        #helpContent{
+            padding:10pt;
+            overflow: auto;
+            height: 100%;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: white;
+        }
     </style>
   </head>
   <body>
     <canvas id="webgl-canvas" width="800" height="800"></canvas>
+    <div id="helpContent"></div>
     <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-    <script
-        src="https://code.jquery.com/jquery-2.2.4.min.js"
-        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-        crossorigin="anonymous"></script>
-    <script src="qrc:///webglspins.js"></script>
+    <script src="qrc:///3rdparty/jquery-2.2.4.min.js"></script>
+    <script src="qrc:///3rdparty/webglspins.js"></script>
+    <script type="text/javascript" src="qrc:///3rdparty/showdown.min.js"></script>
     <script type='text/javascript' src="qrc:///spinscode.js"></script>
   </body>
 </html>

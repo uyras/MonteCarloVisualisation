@@ -29,6 +29,9 @@ CenterDialog {
     property alias az: fieldAz.realValue
     property alias azStore: fieldAz.value
 
+    property bool unitWarningH: (fieldHGroup.hVecLen2 < 0.8 || fieldHGroup.hVecLen2 > 1.2)
+    property bool unitWarningA: (fieldAGroup.aVecLen2 < 0.8 || fieldAGroup.aVecLen2 > 1.2)
+
     contentItem: GridLayout {
         rowSpacing: 3
         columns: 2
@@ -59,8 +62,8 @@ CenterDialog {
 
         DoubleSpinBox {
             id: fieldH
-            value: 1.0 * factor
-            realStepSize: 0.0
+            value: 0.0 * factor
+            realStepSize: 1.0
             realFrom: 0.0
             realTo: 10000
             decimals: 2
@@ -71,8 +74,9 @@ CenterDialog {
         Text { text: "H vector" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }
 
         Row {
-            id: item1
+            id: fieldHGroup
             Layout.fillWidth: true;
+            property real hVecLen2: fieldHx.realValue*fieldHx.realValue + fieldHy.realValue*fieldHy.realValue + fieldHz.realValue*fieldHz.realValue
 
             DoubleSpinBox {
                 id: fieldHx
@@ -96,21 +100,28 @@ CenterDialog {
 
             DoubleSpinBox {
                 id: fieldHz
-                value: 0.0 * factor
+                value: 1.0 * factor
                 realStepSize: 0.05
                 realFrom: 0.0
                 realTo: 1
                 decimals: 2
                 editable: true;
             }
-
+        }
+        Text {
+            text: "It is better to set H vector unit-length";
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter;
+            color: "red";
+            visible: unitWarningH;
+            Layout.columnSpan: 2;
+            Layout.bottomMargin: 5
         }
 
 
         Text { text: "anisotropy" ; Layout.alignment: Qt.AlignRight | Qt.AlignVCenter; }
         DoubleSpinBox {
             id: fieldA
-            value: 0.0 * factor
+            value: 1.0 * factor
             realStepSize: 1.0
             realFrom: 0.0
             realTo: 10000
@@ -124,8 +135,9 @@ CenterDialog {
 
 
         Row {
-            id: item2
+            id: fieldAGroup
             Layout.fillWidth: true;
+            property real aVecLen2: fieldAx.realValue*fieldAx.realValue + fieldAy.realValue*fieldAy.realValue + fieldAz.realValue*fieldAz.realValue
 
             DoubleSpinBox {
                 id: fieldAx
@@ -149,14 +161,21 @@ CenterDialog {
 
             DoubleSpinBox {
                 id: fieldAz
-                value: 0.0 * factor
+                value: 1.0 * factor
                 realStepSize: 0.05
                 realFrom: 0.0
                 realTo: 1
                 decimals: 2
                 editable: true;
             }
-
+        }
+        Text {
+            text: "It is better to set Anisotropy vector unit-length";
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter;
+            color: "red";
+            visible: unitWarningA;
+            Layout.columnSpan: 2;
+            Layout.bottomMargin: 5
         }
     }
 }

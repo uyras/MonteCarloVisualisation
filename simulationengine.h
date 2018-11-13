@@ -28,6 +28,7 @@ public:
 
     Q_PROPERTY(unsigned short step MEMBER m_step NOTIFY stepValueChanged)
     Q_PROPERTY(ushort totalSteps MEMBER m_totalsteps NOTIFY totalStepsValueChanged)
+    Q_PROPERTY(bool isHelpOpened MEMBER m_isHelpOpened NOTIFY isHelpOpenedValueChanged)
 
     Q_INVOKABLE const QString getPoses() const;
     Q_INVOKABLE const QString getMags() const;
@@ -48,6 +49,8 @@ signals:
     void stepValueChanged();
     // emitted when the total number of steps are changed
     void totalStepsValueChanged();
+
+    void isHelpOpenedValueChanged();
 
     // emitted when calculations and update of internal arrays are done
     void allDone();
@@ -70,7 +73,7 @@ private:
     QThread workerThread;
     monteCarloCore worker;
 
-    ushort m_step, m_totalsteps;
+    ushort m_step, m_totalsteps, m_isHelpOpened;
     void fillPlot();
 };
 

@@ -77,8 +77,8 @@ void monteCarloCore::drop()
 {
     parts.resize(int(N));
     int num=0;
-    for (unsigned i=0;i<nx;++i){
-        for (unsigned j=0;j<ny;++j){
+    for (unsigned i=0;i<ny;++i){
+        for (unsigned j=0;j<nx;++j){
             // random direction
             parts[num].m.x = 0;
             parts[num].m.y = 0;
@@ -92,7 +92,7 @@ void monteCarloCore::drop()
             } else{
                 parts[num].neigh[0]=-1;
             }
-            if (i<nx-1){
+            if (i<ny-1){
                 parts[num].neigh[1]=int(nnum(i+1,j));
             } else{
                 parts[num].neigh[1]=-1;
@@ -102,7 +102,7 @@ void monteCarloCore::drop()
             } else{
                 parts[num].neigh[2]=-1;
             }
-            if (j<ny-1){
+            if (j<nx-1){
                 parts[num].neigh[3]=int(nnum(i,j+1));
             } else{
                 parts[num].neigh[3]=-1;
@@ -168,8 +168,8 @@ void monteCarloCore::eCalc()
 {
     E=0;
     int j=0;
-    for (unsigned i=0;i<N;++i){
-        for (unsigned k=0; k<NEIGH; ++k){
+    for (int i=0;i<N;++i){
+        for (int k=0; k<NEIGH; ++k){
             j=parts[i].neigh[k];
             if (j!=-1 && i!=j){
                 E += hamiltonianDipolar(parts[i].pos-parts[j].pos,parts[i].m,parts[j].m);
