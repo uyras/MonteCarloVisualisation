@@ -8,6 +8,10 @@ Also you can tune the parameters literally for every step of simulations.
 
 You can **download** pre-build binaries here: [https://github.com/uyras/MonteCarloVisualisation/releases](https://github.com/uyras/MonteCarloVisualisation/releases)
 
+**Windows installer is [here](https://github.com/uyras/MonteCarloVisualisation/releases/download/0.2/windows-x64-installer.exe)**
+
+If you get error "vcruntime140.dll not found", first install [Visual C++ redistruable package](https://www.microsoft.com/ru-ru/download/details.aspx?id=48145).
+
 * [Example](#example)
 * [Model](#model)
 * [Monte-carlo simulations](#monte-carlo-simulations)

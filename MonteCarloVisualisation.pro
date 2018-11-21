@@ -35,3 +35,5 @@ HEADERS += \
     simulationengine.h \
     montecarlocore.h \
     plotprovider.h
+
+win32:DESTDIR = $$PWD/deploy/windows
